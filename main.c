@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_LINE 50
 
@@ -15,6 +16,7 @@ typedef struct {
 } Account;
 
 Account* accPtr;
+int accSize = 0;
 
 void printWelcome();
 int isDataEmpty();
@@ -60,75 +62,129 @@ void readData()
     data = fopen("data.txt", "r");
 
     Account acc;
-    char* line;
+    char line[MAX_LINE];
 
-    // Number
+    while (1) {
+        
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+        
+        if (line == NULL) {
+            break;
+        }
 
-    line = fgets(line, MAX_LINE, data);
-    acc.number = atoi(line);
+        acc.number = atoi(line);
 
-    if (acc.number <= 0) {
-        // Incorrect data. Overwrite data.txt
-        fclose(data);
-        data = fopen("data.txt", "w");
-        return;
-    }
+        if (acc.number <= 0) {
+            break;
+        }
 
-    line = fgets(line, MAX_LINE, data);
-    acc.name = line;
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
 
-    for (int i = 0; i < strlen(acc.name); ++i) {
-        if (!isalpha(acc.name[i]) && !isspace(acc.name[i])) {
-            // Incorrect data. Overwrite data.txt
-            fclose(data);
-            data = fopen("data.txt", "w");
-            return;
+        if (line == NULL) {
+            break;
+        }
+
+        acc.name = malloc(strlen(line) * sizeof(char));
+        strcpy(acc.name, line);
+
+        for (int i = 0; acc.name[i] != '\n' && acc.name[i] != '\0'; ++i) {
+            if (!isalpha(acc.name[i]) && !isspace(acc.name[i])) {
+                break;
+            }
+        }
+
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+
+        if (line == NULL) {
+            break;
+        }
+
+        acc.surname = malloc(strlen(line) * sizeof(char));
+        strcpy(acc.surname, line);
+
+        for (int i = 0; acc.surname[i] != '\n' && acc.surname[i] != '\0'; ++i) {
+            if (!isalpha(acc.surname[i]) && !isspace(acc.surname[i])) {
+                break;
+            }
+        }
+
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+
+        if (line == NULL) {
+            break;
+        }
+
+        acc.address = malloc(strlen(line) * sizeof(char));
+        strcpy(acc.address, line);
+
+        for (int i = 0; acc.address[i] != '\n' && acc.address[i] != '\0'; ++i) {
+            if (!isalpha(acc.address[i]) && !isspace(acc.address[i]) && !isdigit(acc.address[i])) {
+                break;
+            }
+        }
+
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+
+        if (line == NULL) {
+            break;
+        }
+
+        acc.id = malloc(strlen(line) * sizeof(char));
+        strcpy(acc.id, line);
+
+        if (strlen(acc.id) != 12) {
+            break;
+        }
+
+        for (int i = 0; acc.id[i] != '\n' && acc.id[i] != '\0'; ++i) {
+            if (!isdigit(acc.id[i])) {
+                break;
+            }
+        }
+
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+
+        if (line == NULL) {
+            break;
+        }
+
+        acc.regularBalance = atoi(line);
+
+        do {
+            fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n');
+
+        if (line == NULL) {
+            break;
+        }
+
+        acc.savingsBalance = atoi(line);
+
+        accSize++;
+
+        if (accSize == 1) {
+            accPtr = malloc(sizeof(Account));
+            *accPtr = acc;
+        }
+        else {
+            accPtr = realloc(accPtr, accSize * sizeof(Account));
+            accPtr[accSize - 1] = acc;
         }
     }
 
-    line = fgets(line, MAX_LINE, data);
-    acc.surname = line;
-
-    for (int i = 0; i < strlen(acc.surname); ++i) {
-        if (!isalpha(acc.surname[i]) && !isspace(acc.surname[i])) {
-            // Incorrect data. Overwrite data.txt
-            fclose(data);
-            data = fopen("data.txt", "w");
-            return;
-        }
-    }
-
-    line = fgets(line, MAX_LINE, data);
-    acc.address = line;
-
-    for (int i = 0; i < strlen(acc.address); ++i) {
-        if (!isalpha(acc.address[i]) && !isspace(acc.address[i]) && isdigit(acc.address[i])) {
-            // Incorrect data. Overwrite data.txt
-            fclose(data);
-            data = fopen("data.txt", "w");
-            return;
-        }
-    }
-
-    line = fgets(line, MAX_LINE, data);
-    acc.id = line;
-
-    if (strlen(acc.id) != 11) {
-        fclose(data);
-        data = fopen("data.txt", "w");
-        return;
-    }
-
-    for (int i = 0; i < 11; ++i) {
-        if (!isdigit(acc.id[i])) {
-            fclose(data);
-            data = fopen("data.txt", "w");
-            return;
-        }
-    }
-
-    line = fgets(line, MAX_LINE, data);
-    acc.regularBalance = line;
+    fclose(data);
 }
 
 int isDataEmpty() 
