@@ -1,16 +1,42 @@
-123
 Filip
 Fajfer
-Long 12
-12345678901
+Radwanska 7
+11111111111
 0
 0
 
-321
 Maciek
 Owczarek
-Radwanska 81
+Spruce 1
 33333333333
-600
-300
+0
+0
+
+Jakub
+Lasota
+Willowa 2
+18181818189
+1000
+10000
+
+Filp
+Podrabialski
+Chujowa 3
+12312312312
+23
+112
+
+Mikus
+Banasik
+Wiejska 10
+69696969699
+239123
+9999
+
+Mateusz
+Glinski
+Wroblewskiego 21
+82382382382
+67000
+12300
 
