@@ -103,14 +103,15 @@ void readData()
 
     Account acc;
     char line[MAX_LINE];
+    char* s;
 
     while (1) {
         
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
         
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
@@ -121,10 +122,10 @@ void readData()
         }
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
@@ -138,10 +139,10 @@ void readData()
         }
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
@@ -155,10 +156,10 @@ void readData()
         }
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
@@ -172,10 +173,10 @@ void readData()
         }
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
@@ -193,20 +194,20 @@ void readData()
         }
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
         acc.regularBalance = atoi(line);
 
         do {
-            fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n');
+            s = fgets(line, MAX_LINE, data);
+        } while (line[0] == '\n' && s != NULL);
 
-        if (line == NULL) {
+        if (s == NULL) {
             break;
         }
 
