@@ -43,7 +43,7 @@ int main()
         int choice;
 
         if (scanf("%d", &choice) == 0) {
-            printf("Incorrect input.\n\n");
+            printf("\nIncorrect input.\n\n");
             while (getchar()!='\n');
             continue;
         }
@@ -77,8 +77,7 @@ int main()
             break;
         } 
         else {
-            printf("\n");
-            while (getchar()!='\n');
+            printf("\nIncorrect input.\n\n");
             continue;
         }
     }
@@ -94,8 +93,8 @@ int searchAccount()
     int index;
 
     while (1) {
-        printf("\nSearching for an account:\n\n");
-        printf("How do you wish to search:\n");
+        printf("\nSearching for an account:\n");
+        printf("How do you wish to search:\n\n");
         printf("1) By number\n");
         printf("2) By name\n");
         printf("3) By surname\n");
@@ -137,10 +136,11 @@ int searchByNumber()
     int number;
 
     while (1) {
-        printf("\nSearching by number:\n");
+        printf("\nThere are %d records in the database.", accSize);
+        printf("\nType in a number from 1 to %d:\n", accSize);
 
         if (scanf("%d", &number) == 0 || number > accSize || number <= 0) {
-            printf("Incorrect input.\n\n");
+            printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
@@ -471,7 +471,7 @@ int isDataEmpty()
 void printWelcome()
 {
     printf("Welcome to the Banking System.\n");
-    printf("What would you like to do:\n");
+    printf("What would you like to do:\n\n");
     printf("1) Create a new account.\n");
     printf("2) List all accounts.\n");
     printf("3) Search for an account.\n");
