@@ -7,10 +7,10 @@
 
 typedef struct {
     int number;
-    char* name;
-    char* surname;
-    char* address;
-    char* id;
+    char name[MAX_LINE];
+    char surname[MAX_LINE];
+    char address[MAX_LINE];
+    char id[MAX_LINE];
     int regularBalance;
     int savingsBalance;
 } Account;
@@ -22,7 +22,7 @@ void printWelcome();
 int isDataEmpty();
 void readData();
 void updateData();
-void freeData();
+void makeAccount();
 
 int main() 
 {
@@ -41,9 +41,11 @@ int main()
             continue;
         }
 
+        while (getchar()!='\n');
+
         if (choice == 1) {
+            makeAccount();
             printf("\n");
-            while (getchar()!='\n');
             continue;
         }
         else if (choice == 8) {
@@ -57,21 +59,138 @@ int main()
     }
 
     updateData();
-    freeData();
+    free(accPtr);
 
     return 0;
 }
 
-void freeData()
+void makeAccount() 
 {
-    for (int i = 0; i < accSize; ++i) {
-        free(accPtr[i].name);
-        free(accPtr[i].surname);
-        free(accPtr[i].address);
-        free(accPtr[i].id);
-    }
+    Account acc;
+    char line[MAX_LINE];
 
-    free(accPtr);
+    printf("\nCreating new account:\n\n");
+
+    do {
+        printf("Type in your name:\n");
+        fgets(line, MAX_LINE, stdin);
+
+        int i;
+        int repeat = 0;
+
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
+                repeat = 1;
+                break;
+            }
+
+            acc.name[i] = line[i];
+        }
+
+        acc.name[i] = '\0';
+
+        if (repeat) {
+            continue;
+        }
+
+        break;
+
+    } while(1);
+
+    do {
+        printf("Type in your surname:\n");
+        fgets(line, MAX_LINE, stdin);
+
+        int i;
+        int repeat = 0;
+
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
+                repeat = 1;
+                break;
+            }
+
+            acc.surname[i] = line[i];
+        }
+
+        acc.surname[i] = '\0';
+
+        if (repeat) {
+            continue;
+        }
+
+        break;
+
+    } while(1);
+
+    do {
+        printf("Type in your address:\n");
+        fgets(line, MAX_LINE, stdin);
+
+        int i;
+        int repeat = 0;
+
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
+                repeat = 1;
+                break;
+            }
+
+            acc.address[i] = line[i];
+        }
+
+        acc.address[i] = '\0';
+
+        if (repeat) {
+            continue;
+        }
+
+        break;
+
+    } while(1);
+
+    do {
+        printf("Type in your id number:\n");
+        fgets(line, MAX_LINE, stdin);
+
+        int i;
+        int repeat = 0;
+
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isdigit(line[i])) {
+                repeat = 1;
+                break;
+            }
+
+            acc.id[i] = line[i];
+        }
+
+        acc.id[i] = '\0';
+
+        if (repeat || strlen(acc.id) != 11) {
+            continue;
+        }
+
+        break;
+
+    } while(1);
+
+    printf("Type in your regular account balance:\n");
+    fgets(line, MAX_LINE, stdin);
+    acc.regularBalance = atoi(line);
+
+    printf("Type in your savings account balance:\n");
+    fgets(line, MAX_LINE, stdin);
+    acc.savingsBalance = atoi(line);
+
+    if (++accSize == 1) {
+        accPtr = malloc(sizeof(Account));
+        *accPtr = acc;
+    }
+    else {
+        accPtr = realloc(accPtr, accSize * sizeof(Account));
+        accPtr[accSize - 1] = acc;
+    }
 }
 
 void updateData()
@@ -81,12 +200,10 @@ void updateData()
     char line[MAX_LINE];
 
     for (int i = 0; i < accSize; ++i) {
-        sprintf(line, "%d", accPtr[i].number);
-        fprintf(data, "%s\n", line);
-        fprintf(data, "%s", accPtr[i].name);
-        fprintf(data, "%s", accPtr[i].surname);
-        fprintf(data, "%s", accPtr[i].address);
-        fprintf(data, "%s", accPtr[i].id);
+        fprintf(data, "%s\n", accPtr[i].name);
+        fprintf(data, "%s\n", accPtr[i].surname);
+        fprintf(data, "%s\n", accPtr[i].address);
+        fprintf(data, "%s\n", accPtr[i].id);
         sprintf(line, "%d", accPtr[i].regularBalance);
         fprintf(data, "%s\n", line);
         sprintf(line, "%d", accPtr[i].savingsBalance);
@@ -106,96 +223,89 @@ void readData()
     char* s;
 
     while (1) {
-        
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
-        
-        if (s == NULL) {
-            break;
-        }
-
-        acc.number = atoi(line);
-
-        if (acc.number <= 0) {
-            break;
-        }
+        acc.number = accSize + 1;
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
         }
 
-        acc.name = malloc(strlen(line) * sizeof(char));
-        strcpy(acc.name, line);
+        int i;
 
-        for (int i = 0; acc.name[i] != '\n' && acc.name[i] != '\0'; ++i) {
-            if (!isalpha(acc.name[i]) && !isspace(acc.name[i])) {
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
                 break;
             }
+
+            acc.name[i] = line[i];
         }
+
+        acc.name[i] = '\0';
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
         }
 
-        acc.surname = malloc(strlen(line) * sizeof(char));
-        strcpy(acc.surname, line);
-
-        for (int i = 0; acc.surname[i] != '\n' && acc.surname[i] != '\0'; ++i) {
-            if (!isalpha(acc.surname[i]) && !isspace(acc.surname[i])) {
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
                 break;
             }
+
+            acc.surname[i] = line[i];
         }
+
+        acc.surname[i] = '\0';
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
         }
 
-        acc.address = malloc(strlen(line) * sizeof(char));
-        strcpy(acc.address, line);
-
-        for (int i = 0; acc.address[i] != '\n' && acc.address[i] != '\0'; ++i) {
-            if (!isalpha(acc.address[i]) && !isspace(acc.address[i]) && !isdigit(acc.address[i])) {
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
                 break;
             }
+
+            acc.address[i] = line[i];
         }
+
+        acc.address[i] = '\0';
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
         }
 
-        acc.id = malloc(strlen(line) * sizeof(char));
-        strcpy(acc.id, line);
-
-        if (strlen(acc.id) != 12) {
-            break;
-        }
-
-        for (int i = 0; acc.id[i] != '\n' && acc.id[i] != '\0'; ++i) {
-            if (!isdigit(acc.id[i])) {
+        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
+            if (!isdigit(line[i])) {
                 break;
             }
+
+            acc.id[i] = line[i];
+        }
+
+        acc.id[i] = '\0';
+
+        if (strlen(acc.id) != 11) {
+            break;
         }
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
@@ -205,7 +315,7 @@ void readData()
 
         do {
             s = fgets(line, MAX_LINE, data);
-        } while (line[0] == '\n' && s != NULL);
+        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
         if (s == NULL) {
             break;
@@ -213,9 +323,7 @@ void readData()
 
         acc.savingsBalance = atoi(line);
 
-        accSize++;
-
-        if (accSize == 1) {
+        if (++accSize == 1) {
             accPtr = malloc(sizeof(Account));
             *accPtr = acc;
         }
