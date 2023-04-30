@@ -165,13 +165,7 @@ void listAccounts()
     printf("\nListing all accounts:\n");
     
     for (int i = 0; i < accSize; ++i) {
-        printf("\nNumber:\t\t\t%d\n", accPtr[i].number);
-        printf("Name:\t\t\t%s\n", accPtr[i].name);
-        printf("Surname:\t\t%s\n", accPtr[i].surname);
-        printf("Address:\t\t%s\n", accPtr[i].address);
-        printf("ID:\t\t\t%s\n", accPtr[i].id);
-        printf("Regular balance:\t%d\n", accPtr[i].regularBalance);
-        printf("Savings balance:\t%d\n\n", accPtr[i].savingsBalance);
+        printAccount(i);
     }
 }
 
