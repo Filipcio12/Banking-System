@@ -23,10 +23,17 @@ int isDataEmpty();
 void readData();
 void updateData();
 void makeAccount();
+void listAccounts();
+void printAccount(int index);
+int searchAccount();
+int searchByNumber();
+int searchByName();
 
 int main() 
 {
-    if (isDataEmpty() == 0) { // If data is not empty
+    int isEmpty = isDataEmpty();
+
+    if (!isEmpty) { // If data is not empty
         readData();
     }
 
@@ -48,6 +55,24 @@ int main()
             printf("\n");
             continue;
         }
+        else if (choice == 2) {
+            if (isEmpty) {
+                printf("\nNo accounts to list.\n\n");
+            }
+            else {
+                listAccounts();
+            }
+            continue;
+        }
+        else if (choice == 3) {
+            if (isEmpty) {
+                printf("\nNo accounts to search.\n\n");
+            }
+            else {
+                searchAccount();
+            }
+            continue;
+        }
         else if (choice == 8) {
             break;
         } 
@@ -62,6 +87,92 @@ int main()
     free(accPtr);
 
     return 0;
+}
+
+int searchAccount() 
+{
+    int index;
+
+    while (1) {
+        printf("\nSearching for an account:\n\n");
+        printf("How do you wish to search:\n");
+        printf("1) By number\n");
+        printf("2) By name\n");
+        printf("3) By surname\n");
+        printf("4) By address\n");
+        printf("5) By ID\n\n");
+
+        int choice;
+
+        if (scanf("%d", &choice) == 0) {
+            printf("Incorrect input.\n\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        while (getchar()!='\n');
+
+        if (choice == 1) {
+            index = searchByNumber();
+            break;
+        }
+        else {
+            printf("Incorrect input.\n\n");
+            while (getchar()!='\n');
+            continue;
+        }
+    }
+
+    printAccount(index);
+    return index;
+}
+
+int searchByName()
+{
+
+}
+
+int searchByNumber()
+{
+    int number;
+
+    while (1) {
+        printf("\nSearching by number:\n");
+
+        if (scanf("%d", &number) == 0 || number > accSize || number <= 0) {
+            printf("Incorrect input.\n\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        return number - 1;
+    }
+}
+
+void printAccount(int index) 
+{
+    printf("\nNumber:\t\t\t%d\n", accPtr[index].number);
+    printf("Name:\t\t\t%s\n", accPtr[index].name);
+    printf("Surname:\t\t%s\n", accPtr[index].surname);
+    printf("Address:\t\t%s\n", accPtr[index].address);
+    printf("ID:\t\t\t%s\n", accPtr[index].id);
+    printf("Regular balance:\t%d\n", accPtr[index].regularBalance);
+    printf("Savings balance:\t%d\n\n", accPtr[index].savingsBalance);
+}
+
+void listAccounts() 
+{
+    printf("\nListing all accounts:\n");
+    
+    for (int i = 0; i < accSize; ++i) {
+        printf("\nNumber:\t\t\t%d\n", accPtr[i].number);
+        printf("Name:\t\t\t%s\n", accPtr[i].name);
+        printf("Surname:\t\t%s\n", accPtr[i].surname);
+        printf("Address:\t\t%s\n", accPtr[i].address);
+        printf("ID:\t\t\t%s\n", accPtr[i].id);
+        printf("Regular balance:\t%d\n", accPtr[i].regularBalance);
+        printf("Savings balance:\t%d\n\n", accPtr[i].savingsBalance);
+    }
 }
 
 void makeAccount() 
