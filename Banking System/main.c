@@ -31,10 +31,14 @@ int searchByName();
 int searchBySurname();
 int searchByAddress();
 int searchByID();
-
 int checkName(char* line);
 int checkAddress(char* line);
 int checkID(char* line);
+void makeDeposit();
+void makeWithdrawal();
+void makeMoneyTransfer();
+void transferToSavingsAccount();
+void transferFromSavingsAccount();
 
 int main() 
 {
@@ -68,19 +72,194 @@ int main()
                 searchAccount();
                 break;
 
+            case 4:
+                makeDeposit();
+                break;
+
+            case 5:
+                makeWithdrawal();
+                break;
+
+            case 6:
+                makeMoneyTransfer();
+                break;
+
+            case 7:
+                transferToSavingsAccount();
+                break;
+
             case 8:
+                transferFromSavingsAccount();
+                break;
+
+            case 9:
                 break;
                 
             default:
                 printf("\nIncorrect input.\n\n");
                 break;
         }
-    } while (choice != 8);
+    } while (choice != 9);
 
     updateData();
     free(accPtr);
 
     return 0;
+}
+
+void transferFromSavingsAccount()
+{
+    printf("\nMaking a transfer from a savings account:\n");
+    
+    int index = searchAccount();
+
+    if (index == -1) {
+        return;
+    }
+
+    int transfer;
+
+    while (1) {
+        printf("Type in an amount of money:\n");
+        
+        if (scanf("%d", &transfer) == 0 || transfer < 0 ||
+            transfer > accPtr[index].savingsBalance) {
+            printf("\nIncorrect input.\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        accPtr[index].savingsBalance -= transfer;
+        accPtr[index].regularBalance += transfer;
+        printf("\nTransferred %d.\n", transfer);
+        printAccount(index);
+        return;
+    }
+}
+
+void transferToSavingsAccount()
+{
+    printf("\nMaking a transfer to a savings account:\n");
+    
+    int index = searchAccount();
+
+    if (index == -1) {
+        return;
+    }
+
+    int transfer;
+
+    while (1) {
+        printf("Type in an amount of money:\n");
+        
+        if (scanf("%d", &transfer) == 0 || transfer < 0 ||
+            transfer > accPtr[index].regularBalance) {
+            printf("\nIncorrect input.\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        accPtr[index].regularBalance -= transfer;
+        accPtr[index].savingsBalance += transfer;
+        printf("\nTransferred %d.\n", transfer);
+        printAccount(index);
+        return;
+    }
+}
+
+void makeMoneyTransfer()
+{
+    printf("\nMaking a money transfer:\n");
+
+    int index1 = searchAccount();
+
+    if (index1 == -1) {
+        return;
+    }
+
+    int index2 = searchAccount();
+
+    if (index2 == -1) {
+        return;
+    }
+
+    int transfer;
+
+    while (1) {
+        printf("Type in an amount of money ");
+        printf("to transfer from the first account to the second:\n");
+
+        if (scanf("%d", &transfer) == 0 || transfer < 0 || 
+            transfer > accPtr[index1].regularBalance) {
+            printf("\nIncorrect input.\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        accPtr[index1].regularBalance -= transfer;
+        accPtr[index2].regularBalance += transfer;
+        printf("\nTransferred %d.\n", transfer);
+        printAccount(index1);
+        printAccount(index2);
+        return;
+    }
+}
+
+void makeWithdrawal()
+{
+    printf("\nMaking a withdrawal:\n");
+    
+    int index = searchAccount();
+
+    if (index == -1) {
+        return;
+    }
+
+    int withdrawal;
+
+    while (1) {
+        printf("Type in an amount of money:\n");
+        
+        if (scanf("%d", &withdrawal) == 0 || withdrawal < 0 || 
+            withdrawal > accPtr[index].regularBalance) {
+            printf("\nIncorrect input.\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        accPtr[index].regularBalance -= withdrawal;
+        printf("\nWithdrawn %d.\n", withdrawal);
+        printAccount(index);
+        return;
+    }
+}
+
+void makeDeposit()
+{
+    printf("\nMaking a deposit:\n");
+    
+    int index = searchAccount();
+
+    if (index == -1) {
+        return;
+    }
+
+    int deposit;
+
+    while (1) {
+        printf("Type in an amount of money:\n");
+        
+        if (scanf("%d", &deposit) == 0 || deposit < 0) {
+            printf("\nIncorrect input.\n");
+            while (getchar()!='\n');
+            continue;
+        }
+
+        accPtr[index].regularBalance += deposit;
+        printf("\nDeposited %d.\n", deposit);
+        printAccount(index);
+        return;
+    }
 }
 
 int checkName(char* line)
@@ -525,6 +704,7 @@ void printWelcome()
     printf("4) Make a deposit.\n");
     printf("5) Make a withdrawal.\n");
     printf("6) Make a money transfer between accounts.\n");
-    printf("7) Make a money transfer to/from savings account.\n");
-    printf("8) Quit.\n\n");
+    printf("7) Make a money transfer to a savings account.\n");
+    printf("8) Make a money transfer from a savings account.\n");
+    printf("9) Quit.\n\n");
 }

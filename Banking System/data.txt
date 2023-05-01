@@ -2,21 +2,21 @@ Filip
 Fajfer
 Radwanska 7
 11111111111
-0
+700
 0
 
 Maciek
 Owczarek
 Spruce 1
 33333333333
-0
+500
 0
 
 Jakub
 Lasota
 Willowa 2
 18181818189
-1000
+500
 10000
 
 Filip
@@ -30,8 +30,8 @@ Mikus
 Banasik
 Wiejska 10
 69696969699
-239123
-9999
+240123
+8999
 
 Mateusz
 Glinski
