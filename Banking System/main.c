@@ -28,6 +28,9 @@ void printAccount(int index);
 int searchAccount();
 int searchByNumber();
 int searchByName();
+int searchBySurname();
+int searchByAddress();
+int searchByID();
 
 int main() 
 {
@@ -69,7 +72,13 @@ int main()
                 printf("\nNo accounts to search.\n\n");
             }
             else {
-                searchAccount();
+                int index = searchAccount();
+                if (index == -1) {
+                    printf("\nAccount not found.\n\n");
+                }
+                else {
+                    printAccount(index);
+                }
             }
             continue;
         }
@@ -115,20 +124,154 @@ int searchAccount()
             index = searchByNumber();
             break;
         }
+        else if (choice == 2) {
+            index = searchByName();
+            break;
+        }
+        else if (choice == 3) {
+            index = searchBySurname();
+            break;
+        }
+        else if (choice == 4) {
+            index = searchByAddress();
+            break;
+        }
+        else if (choice == 5) {
+            index = searchByID();
+            break;
+        }
         else {
             printf("Incorrect input.\n\n");
-            while (getchar()!='\n');
             continue;
         }
     }
 
-    printAccount(index);
     return index;
+}
+
+int searchByID()
+{
+    char line[MAX_LINE];
+    int repeat = 0;
+
+    do {
+        printf("\nType in an ID:\n");
+
+        fgets(line, MAX_LINE, stdin);
+        line[strlen(line) - 1] = '\0';
+
+        repeat = 0;
+
+        if (strlen(line) != 11) {
+            repeat = 1;
+            continue;
+        }
+
+        for (int i = 0; i < strlen(line); ++i) {
+            if (!isdigit(line[i])) {
+                repeat = 1;
+                break;
+            }
+        }
+    } while (repeat);
+
+    for (int i = 0; i < accSize; ++i) {
+        if (strcmp(line, accPtr[i].id) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int searchByAddress()
+{
+    char line[MAX_LINE];
+    int repeat = 0;
+
+    do {
+        printf("\nType in an address:\n");
+
+        fgets(line, MAX_LINE, stdin);
+        line[strlen(line) - 1] = '\0';
+
+        repeat = 0;
+
+        for (int i = 0; i < strlen(line); ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
+                repeat = 1;
+                break;
+            }
+        }
+    } while (repeat);
+
+    for (int i = 0; i < accSize; ++i) {
+        if (strcmp(line, accPtr[i].address) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int searchBySurname()
+{
+    char line[MAX_LINE];
+    int repeat = 0;
+
+    do {
+        printf("\nType in a surname:\n");
+
+        fgets(line, MAX_LINE, stdin);
+        line[strlen(line) - 1] = '\0';
+
+        repeat = 0;
+
+        for (int i = 0; i < strlen(line); ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
+                repeat = 1;
+                break;
+            }
+        }
+    } while (repeat);
+
+    for (int i = 0; i < accSize; ++i) {
+        if (strcmp(line, accPtr[i].surname) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 int searchByName()
 {
+    char line[MAX_LINE];
+    int repeat = 0;
 
+    do {
+        printf("\nType in a name:\n");
+
+        fgets(line, MAX_LINE, stdin);
+        line[strlen(line) - 1] = '\0';
+
+        repeat = 0;
+
+        for (int i = 0; i < strlen(line); ++i) {
+            if (!isalpha(line[i]) && !isspace(line[i])) {
+                repeat = 1;
+                break;
+            }
+        }
+    } while (repeat);
+
+    for (int i = 0; i < accSize; ++i) {
+        if (strcmp(line, accPtr[i].name) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 int searchByNumber()
