@@ -38,16 +38,14 @@ int checkID(char* line);
 
 int main() 
 {
-    int isEmpty = isDataEmpty();
+    int choice;
 
-    if (!isEmpty) { // If data is not empty
+    if (!isDataEmpty()) {
         readData();
     }
 
-    while (1) {
+    do {
         printWelcome();
-
-        int choice;
 
         if (scanf("%d", &choice) == 0) {
             printf("\nIncorrect input.\n\n");
@@ -57,43 +55,27 @@ int main()
 
         while (getchar()!='\n');
 
-        if (choice == 1) {
-            makeAccount();
-            printf("\n");
-            continue;
-        }
-        else if (choice == 2) {
-            if (isEmpty) {
-                printf("\nNo accounts to list.\n\n");
-            }
-            else {
+        switch (choice) {
+            case 1:
+                makeAccount();
+                break;
+
+            case 2:
                 listAccounts();
-            }
-            continue;
+                break;
+
+            case 3:
+                searchAccount();
+                break;
+
+            case 8:
+                break;
+                
+            default:
+                printf("\nIncorrect input.\n\n");
+                break;
         }
-        else if (choice == 3) {
-            if (isEmpty) {
-                printf("\nNo accounts to search.\n\n");
-            }
-            else {
-                int index = searchAccount();
-                if (index == -1) {
-                    printf("\nAccount not found.\n\n");
-                }
-                else {
-                    printAccount(index);
-                }
-            }
-            continue;
-        }
-        else if (choice == 8) {
-            break;
-        } 
-        else {
-            printf("\nIncorrect input.\n\n");
-            continue;
-        }
-    }
+    } while (choice != 8);
 
     updateData();
     free(accPtr);
@@ -175,9 +157,15 @@ int checkID(char* line)
 
 int searchAccount() 
 {
-    int index;
+    if (isDataEmpty()) {
+        printf("\nNo accounts search.\n\n");
+        return -1;
+    }
 
-    while (1) {
+    int index;
+    int choice;
+
+    do {
         printf("\nSearching for an account:\n");
         printf("How do you wish to search:\n\n");
         printf("1) By number\n");
@@ -186,40 +174,46 @@ int searchAccount()
         printf("4) By address\n");
         printf("5) By ID\n\n");
 
-        int choice;
-
         if (scanf("%d", &choice) == 0) {
-            printf("Incorrect input.\n\n");
+            printf("\nIncorrect input.\n\n");
             while (getchar()!='\n');
             continue;
         }
 
         while (getchar()!='\n');
 
-        if (choice == 1) {
-            index = searchByNumber();
-            break;
+        switch (choice) {
+            case 1:
+                index = searchByNumber();
+                break;
+
+            case 2:
+                index = searchByName();
+                break;
+
+            case 3:
+                index = searchBySurname();
+                break;
+            
+            case 4:
+                index = searchByAddress();
+                break;
+            
+            case 5:
+                index = searchByID();
+                break;
+            
+            default:
+                printf("\nIncorrect input.\n\n");
+                break;
         }
-        else if (choice == 2) {
-            index = searchByName();
-            break;
-        }
-        else if (choice == 3) {
-            index = searchBySurname();
-            break;
-        }
-        else if (choice == 4) {
-            index = searchByAddress();
-            break;
-        }
-        else if (choice == 5) {
-            index = searchByID();
-            break;
-        }
-        else {
-            printf("Incorrect input.\n\n");
-            continue;
-        }
+    } while (choice > 5 || choice < 1);
+
+    if (index == -1) {
+        printf("\nAccount not found.\n\n");
+    }
+    else {
+        printAccount(index);
     }
 
     return index;
@@ -328,6 +322,11 @@ void printAccount(int index)
 
 void listAccounts() 
 {
+    if (isDataEmpty()) {
+        printf("\nNo accounts to list.\n\n");
+        return;
+    }
+
     printf("\nListing all accounts:\n");
     
     for (int i = 0; i < accSize; ++i) {
@@ -386,6 +385,8 @@ void makeAccount()
         accPtr = realloc(accPtr, accSize * sizeof(Account));
         accPtr[accSize - 1] = acc;
     }
+
+    printf("\n");
 }
 
 void updateData()
