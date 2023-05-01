@@ -32,6 +32,10 @@ int searchBySurname();
 int searchByAddress();
 int searchByID();
 
+int checkName(char* line);
+int checkAddress(char* line);
+int checkID(char* line);
+
 int main() 
 {
     int isEmpty = isDataEmpty();
@@ -97,6 +101,78 @@ int main()
     return 0;
 }
 
+int checkName(char* line)
+{
+    if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
+        line[strlen(line) - 1] = '\0';
+        line[strlen(line) - 2] = '\0';
+    }
+
+    if (strlen(line) > 0 && line[strlen(line) - 1] == '\n') {
+        line[strlen(line) - 1] = '\0';
+    }
+
+    if (strlen(line) == 0) {
+        return 0;
+    }
+
+    for (int i = 0; i < strlen(line); ++i) {
+        if (!isalpha(line[i]) && !isblank(line[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int checkAddress(char* line)
+{
+    if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
+        line[strlen(line) - 1] = '\0';
+        line[strlen(line) - 2] = '\0';
+    }
+
+    if (strlen(line) > 0 && line[strlen(line) - 1] == '\n') {
+        line[strlen(line) - 1] = '\0';
+    }
+
+    if (strlen(line) == 0) {
+        return 0;
+    }      
+    
+    for (int i = 0; i < strlen(line); ++i) {
+        if (!isalpha(line[i]) && !isblank(line[i]) && !isdigit(line[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int checkID(char* line)
+{
+    if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
+        line[strlen(line) - 1] = '\0';
+        line[strlen(line) - 2] = '\0';
+    }
+
+    if (strlen(line) > 0 && line[strlen(line) - 1] == '\n') {
+        line[strlen(line) - 1] = '\0';
+    }
+
+    if (strlen(line) != 11) {
+        return 0;
+    }
+
+    for (int i = 0; i < 11; ++i) {
+        if (!isdigit(line[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 int searchAccount() 
 {
     int index;
@@ -152,28 +228,11 @@ int searchAccount()
 int searchByID()
 {
     char line[MAX_LINE];
-    int repeat = 0;
 
     do {
         printf("\nType in an ID:\n");
-
         fgets(line, MAX_LINE, stdin);
-        line[strlen(line) - 1] = '\0';
-
-        repeat = 0;
-
-        if (strlen(line) != 11) {
-            repeat = 1;
-            continue;
-        }
-
-        for (int i = 0; i < strlen(line); ++i) {
-            if (!isdigit(line[i])) {
-                repeat = 1;
-                break;
-            }
-        }
-    } while (repeat);
+    } while (checkID(line) == 0);
 
     for (int i = 0; i < accSize; ++i) {
         if (strcmp(line, accPtr[i].id) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
@@ -187,23 +246,11 @@ int searchByID()
 int searchByAddress()
 {
     char line[MAX_LINE];
-    int repeat = 0;
 
     do {
         printf("\nType in an address:\n");
-
         fgets(line, MAX_LINE, stdin);
-        line[strlen(line) - 1] = '\0';
-
-        repeat = 0;
-
-        for (int i = 0; i < strlen(line); ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
-                repeat = 1;
-                break;
-            }
-        }
-    } while (repeat);
+    } while (checkAddress(line) == 0);
 
     for (int i = 0; i < accSize; ++i) {
         if (strcmp(line, accPtr[i].address) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
@@ -217,23 +264,11 @@ int searchByAddress()
 int searchBySurname()
 {
     char line[MAX_LINE];
-    int repeat = 0;
 
     do {
         printf("\nType in a surname:\n");
-
         fgets(line, MAX_LINE, stdin);
-        line[strlen(line) - 1] = '\0';
-
-        repeat = 0;
-
-        for (int i = 0; i < strlen(line); ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                repeat = 1;
-                break;
-            }
-        }
-    } while (repeat);
+    } while (checkName(line) == 0);
 
     for (int i = 0; i < accSize; ++i) {
         if (strcmp(line, accPtr[i].surname) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
@@ -247,23 +282,11 @@ int searchBySurname()
 int searchByName()
 {
     char line[MAX_LINE];
-    int repeat = 0;
 
     do {
         printf("\nType in a name:\n");
-
         fgets(line, MAX_LINE, stdin);
-        line[strlen(line) - 1] = '\0';
-
-        repeat = 0;
-
-        for (int i = 0; i < strlen(line); ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                repeat = 1;
-                break;
-            }
-        }
-    } while (repeat);
+    } while (checkName(line) == 0);
 
     for (int i = 0; i < accSize; ++i) {
         if (strcmp(line, accPtr[i].name) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
@@ -322,106 +345,30 @@ void makeAccount()
     do {
         printf("Type in your name:\n");
         fgets(line, MAX_LINE, stdin);
+    } while (checkName(line) == 0);
 
-        int i;
-        int repeat = 0;
-
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                repeat = 1;
-                break;
-            }
-
-            acc.name[i] = line[i];
-        }
-
-        acc.name[i] = '\0';
-
-        if (repeat) {
-            continue;
-        }
-
-        break;
-
-    } while(1);
+    strcpy(acc.name, line);
 
     do {
         printf("Type in your surname:\n");
         fgets(line, MAX_LINE, stdin);
+    } while (checkName(line) == 0);
 
-        int i;
-        int repeat = 0;
-
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                repeat = 1;
-                break;
-            }
-
-            acc.surname[i] = line[i];
-        }
-
-        acc.surname[i] = '\0';
-
-        if (repeat) {
-            continue;
-        }
-
-        break;
-
-    } while(1);
+    strcpy(acc.surname, line);
 
     do {
         printf("Type in your address:\n");
         fgets(line, MAX_LINE, stdin);
+    } while (checkAddress(line) == 0);
 
-        int i;
-        int repeat = 0;
-
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
-                repeat = 1;
-                break;
-            }
-
-            acc.address[i] = line[i];
-        }
-
-        acc.address[i] = '\0';
-
-        if (repeat) {
-            continue;
-        }
-
-        break;
-
-    } while(1);
+    strcpy(acc.address, line);
 
     do {
         printf("Type in your id number:\n");
         fgets(line, MAX_LINE, stdin);
+    } while (checkID(line) == 0);
 
-        int i;
-        int repeat = 0;
-
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isdigit(line[i])) {
-                repeat = 1;
-                break;
-            }
-
-            acc.id[i] = line[i];
-        }
-
-        acc.id[i] = '\0';
-
-        if (repeat || strlen(acc.id) != 11) {
-            continue;
-        }
-
-        break;
-
-    } while(1);
+    strcpy(acc.id, line);
 
     printf("Type in your regular account balance:\n");
     fgets(line, MAX_LINE, stdin);
@@ -477,79 +424,41 @@ void readData()
             s = fgets(line, MAX_LINE, data);
         } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
-        if (s == NULL) {
+        if (s == NULL || checkName(line) == 0) {
             break;
         }
 
-        int i;
-
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                break;
-            }
-
-            acc.name[i] = line[i];
-        }
-
-        acc.name[i] = '\0';
+        strcpy(acc.name, line);
 
         do {
             s = fgets(line, MAX_LINE, data);
         } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
-        if (s == NULL) {
+        if (s == NULL || checkName(line) == 0) {
             break;
         }
 
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i])) {
-                break;
-            }
-
-            acc.surname[i] = line[i];
-        }
-
-        acc.surname[i] = '\0';
+        strcpy(acc.surname, line);
 
         do {
             s = fgets(line, MAX_LINE, data);
         } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
-        if (s == NULL) {
+        if (s == NULL || checkAddress(line) == 0) {
             break;
         }
 
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isalpha(line[i]) && !isspace(line[i]) && !isdigit(line[i])) {
-                break;
-            }
-
-            acc.address[i] = line[i];
-        }
-
-        acc.address[i] = '\0';
+        strcpy(acc.address, line);
 
         do {
             s = fgets(line, MAX_LINE, data);
         } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
 
-        if (s == NULL) {
+        if (s == NULL || checkID(line) == 0) {
             break;
         }
 
-        for (i = 0; line[i] != '\n' && line[i] != '\r' && line[i] != '\0'; ++i) {
-            if (!isdigit(line[i])) {
-                break;
-            }
-
-            acc.id[i] = line[i];
-        }
-
-        acc.id[i] = '\0';
-
-        if (strlen(acc.id) != 11) {
-            break;
-        }
+        strcpy(acc.id, line);
 
         do {
             s = fgets(line, MAX_LINE, data);
