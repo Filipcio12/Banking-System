@@ -125,8 +125,8 @@ void transferFromSavingsAccount()
         acc.savingsBalance -= transfer;
         acc.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
+        overwriteAccount(acc, index);
         printAccount(index);
-        overwriteAccount(acc, index); 
         return;
     }
 }
@@ -158,8 +158,8 @@ void transferToSavingsAccount()
         acc.regularBalance -= transfer;
         acc.savingsBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
-        printAccount(index);
         overwriteAccount(acc, index);
+        printAccount(index);
         return;
     }
 }
@@ -199,10 +199,10 @@ void makeMoneyTransfer()
         acc1.regularBalance -= transfer;
         acc2.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
-        printAccount(index1);
-        printAccount(index2);
         overwriteAccount(acc1, index1);
         overwriteAccount(acc2, index2);
+        printAccount(index1);
+        printAccount(index2);
         return;
     }
 }
@@ -233,8 +233,8 @@ void makeWithdrawal()
 
         acc.regularBalance -= withdrawal;
         printf("\nWithdrawn %d.\n", withdrawal);
-        printAccount(index);
         overwriteAccount(acc, index);
+        printAccount(index);
         return;
     }
 }
@@ -264,8 +264,8 @@ void makeDeposit()
 
         acc.regularBalance += deposit;
         printf("\nDeposited %d.\n", deposit);
-        printAccount(index);
         overwriteAccount(acc, index);
+        printAccount(index);
         return;
     }
 }
@@ -540,9 +540,11 @@ void makeAccount()
 {
     Account acc;
     char line[MAX_LINE];
-
+	long size = whatSize();
+	
     printf("\nCreating new account:\n\n");
-
+	acc.number = size + 1;
+	
     do {
         printf("Type in your name:\n");
         fgets(line, MAX_LINE, stdin);
