@@ -1,0 +1,49 @@
+Filip
+Fajfer
+Radwanska 7
+11111111111
+700
+0
+
+Maciek
+Owczarek
+Spruce 1
+33333333333
+500
+0
+
+Jakub
+Lasota
+Willowa 2
+18181818189
+500
+10000
+
+Filip
+Podrabialski
+Dluga 3
+12312312312
+23
+112
+
+Mikus
+Banasik
+Wiejska 10
+69696969699
+240123
+8999
+
+Mateusz
+Glinski
+Wroblewskiego 21
+82382382382
+67000
+12300
+
+Andrzej
+Duda
+Bialy Dom 64
+02132187912
+10231414
+120392
+
