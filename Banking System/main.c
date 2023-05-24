@@ -25,10 +25,6 @@ void listAccounts();
 void printAccount(Account acc);
 void searchAccount();
 int searchByNumber();
-void searchByName(long size);
-void searchBySurname(long size);
-void searchByAddress(long size);
-void searchByID(long size);
 int checkName(char* line);
 int checkAddress(char* line);
 int checkID(char* line);
@@ -115,6 +111,7 @@ void transferFromSavingsAccount()
     }
 
     Account acc = readAccount(index);
+    printAccount(acc);
 
     int transfer;
 
@@ -148,6 +145,7 @@ void transferToSavingsAccount()
     }
 
     Account acc = readAccount(index);
+    printAccount(acc);
 
     int transfer;
 
@@ -180,14 +178,17 @@ void makeMoneyTransfer()
         return;
     }
 
+    Account acc1 = readAccount(index1);
+    printAccount(acc1);
+
     int index2 = searchByNumber();
 
     if (index2 == -1) {
         return;
     }
 
-    Account acc1 = readAccount(index1);
     Account acc2 = readAccount(index2);
+    printAccount(acc2);
 
     int transfer;
 
@@ -224,6 +225,7 @@ void makeWithdrawal()
     }
 
     Account acc = readAccount(index);
+    printAccount(acc);
 
     int withdrawal;
 
@@ -256,6 +258,7 @@ void makeDeposit()
     }
 
     Account acc = readAccount(index);
+    printAccount(acc);
 
     int deposit;
 
@@ -406,19 +409,19 @@ void searchAccount()
                 break;
 
             case 2:
-                searchByName(size);
+                searchByField(size, "name", &checkName, &cmpName);
                 break;
 
             case 3:
-                searchBySurname(size);
+                searchByField(size, "surname", &checkName, &cmpSurname);
                 break;
             
             case 4:
-                searchByAddress(size);
+                searchByField(size, "address", &checkAddress, &cmpAddress);
                 break;
             
             case 5:
-                searchByID(size);
+                searchByField(size, "ID", &checkID, &cmpID);
                 break;
             
             default:
@@ -437,82 +440,6 @@ void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, 
     for (int i = 0; i < size; ++i) {
         Account acc = readAccount(i);
         if (!(*cmp)(line, acc)) {
-            printAccount(acc);
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("\nAccount not found.\n\n");
-    }
-}
-
-void searchByID(long size)
-{
-    char line[MAX_LINE];
-    int found = 0;
-    enterLine(line, "ID", &checkID);
-
-    for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
-        if (!strcmp(line, acc.id)) {
-            printAccount(acc);
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("\nAccount not found.\n\n");
-    }
-}
-
-void searchByAddress(long size)
-{
-    char line[MAX_LINE];
-    int found = 0;
-    enterLine(line, "address", &checkAddress);
-
-    for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
-        if (!strcmp(line, acc.address)) {
-            printAccount(acc);
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("\nAccount not found.\n\n");
-    }
-}
-
-void searchBySurname(long size)
-{
-    char line[MAX_LINE];
-    int found = 0;
-    enterLine(line, "surname", &checkName);
-
-    for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
-        if (!strcmp(line, acc.surname)) {
-            printAccount(acc);
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("\nAccount not found.\n\n");
-    }
-}
-
-void searchByName(long size)
-{
-    char line[MAX_LINE];
-    int found = 0;
-    enterLine(line, "name", &checkName);
-
-    for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
-        if (!strcmp(line, acc.name)) {
             printAccount(acc);
             found = 1;
         }
