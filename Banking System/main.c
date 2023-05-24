@@ -39,6 +39,9 @@ int cmpSurname(char* line, Account acc);
 int cmpAddress(char* line, Account acc);
 int cmpID(char* line, Account acc);
 void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, Account));
+int verifyAccount(Account acc, int index);
+void makeBackup();
+void confirmOperation();
 
 int main() 
 {
@@ -100,6 +103,48 @@ int main()
     return 0;
 }
 
+void confirmOperation()
+{   
+    char line[MAX_LINE];
+    do {
+        printf("Do you wish to confirm the operation? (y/n):\n");
+        fgets(line, MAX_LINE, stdin);
+    } while (strcmp("y\n", line) && strcmp("n\n", line));
+    
+    if (!strcmp("n\n", line)) {
+        remove("data.bin");
+        rename("backup.bin", "data.bin");
+        makeBackup();
+    }
+}
+
+void makeBackup()
+{
+    FILE* data = fopen("data.bin", "rb");
+    FILE* backup = fopen("backup.bin", "wb");
+
+    Account acc;
+    while (fread(&acc, sizeof(Account), 1, data)) {
+        fwrite(&acc, sizeof(Account), 1, backup);
+    }
+
+    fclose(data);
+    fclose(backup);
+}
+
+int verifyAccount(Account acc, int index)
+{
+    if (
+        checkName(acc.name) && checkName(acc.surname) && 
+        checkAddress(acc.address) && checkID(acc.id) &&
+        (index + 1) == acc.number
+    ) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void transferFromSavingsAccount()
 {
     printf("\nMaking a transfer from a savings account:\n");
@@ -128,8 +173,11 @@ void transferFromSavingsAccount()
         acc.savingsBalance -= transfer;
         acc.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
-        printAccount(acc);
+        confirmOperation();
+        printAccount(readAccount(index));
         return;
     }
 }
@@ -162,8 +210,11 @@ void transferToSavingsAccount()
         acc.regularBalance -= transfer;
         acc.savingsBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
-        printAccount(acc);
+        confirmOperation();
+        printAccount(readAccount(index));
         return;
     }
 }
@@ -206,10 +257,13 @@ void makeMoneyTransfer()
         acc1.regularBalance -= transfer;
         acc2.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc1, index1);
         overwriteAccount(acc2, index2);
-        printAccount(acc1);
-        printAccount(acc2);
+        confirmOperation();
+        printAccount(readAccount(index1));
+        printAccount(readAccount(index2));
         return;
     }
 }
@@ -241,8 +295,11 @@ void makeWithdrawal()
 
         acc.regularBalance -= withdrawal;
         printf("\nWithdrawn %d.\n", withdrawal);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
-        printAccount(acc);
+        confirmOperation();
+        printAccount(readAccount(index));
         return;
     }
 }
@@ -273,8 +330,11 @@ void makeDeposit()
 
         acc.regularBalance += deposit;
         printf("\nDeposited %d.\n", deposit);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
-        printAccount(acc);
+        confirmOperation();
+        printAccount(readAccount(index));
         return;
     }
 }
@@ -536,7 +596,9 @@ void makeAccount()
     fgets(line, MAX_LINE, stdin);
     acc.savingsBalance = atoi(line);
 
+    makeBackup();
     appendAccount(acc);
+    confirmOperation();
 
     printf("\n");
 }
