@@ -15,22 +15,20 @@ typedef struct {
     int savingsBalance;
 } Account;
 
-Account* accPtr;
-int accSize = 0;
-
 void printWelcome();
-int isDataEmpty();
-void readData();
-void updateData();
+long whatSize();
+Account readAccount(int index);
+void appendAccount(Account acc);
+void overwriteAccount(Account acc, int index);
 void makeAccount();
 void listAccounts();
-void printAccount(int index);
-int searchAccount();
+void printAccount(Account acc);
+void searchAccount();
 int searchByNumber();
-int searchByName();
-int searchBySurname();
-int searchByAddress();
-int searchByID();
+void searchByName(long size);
+void searchBySurname(long size);
+void searchByAddress(long size);
+void searchByID(long size);
 int checkName(char* line);
 int checkAddress(char* line);
 int checkID(char* line);
@@ -39,14 +37,16 @@ void makeWithdrawal();
 void makeMoneyTransfer();
 void transferToSavingsAccount();
 void transferFromSavingsAccount();
+void enterLine(char* line, char* msg, int (*check)(char*));
+int cmpName(char* line, Account acc);
+int cmpSurname(char* line, Account acc);
+int cmpAddress(char* line, Account acc);
+int cmpID(char* line, Account acc);
+void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, Account));
 
 int main() 
 {
     int choice;
-
-    if (!isDataEmpty()) {
-        readData();
-    }
 
     do {
         printWelcome();
@@ -101,9 +101,6 @@ int main()
         }
     } while (choice != 9);
 
-    updateData();
-    free(accPtr);
-
     return 0;
 }
 
@@ -111,11 +108,13 @@ void transferFromSavingsAccount()
 {
     printf("\nMaking a transfer from a savings account:\n");
     
-    int index = searchAccount();
+    int index = searchByNumber();
 
     if (index == -1) {
         return;
     }
+
+    Account acc = readAccount(index);
 
     int transfer;
 
@@ -123,16 +122,17 @@ void transferFromSavingsAccount()
         printf("Type in an amount of money:\n");
         
         if (scanf("%d", &transfer) == 0 || transfer < 0 ||
-            transfer > accPtr[index].savingsBalance) {
+            transfer > acc.savingsBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        accPtr[index].savingsBalance -= transfer;
-        accPtr[index].regularBalance += transfer;
+        acc.savingsBalance -= transfer;
+        acc.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
-        printAccount(index);
+        overwriteAccount(acc, index);
+        printAccount(acc);
         return;
     }
 }
@@ -141,11 +141,13 @@ void transferToSavingsAccount()
 {
     printf("\nMaking a transfer to a savings account:\n");
     
-    int index = searchAccount();
+    int index = searchByNumber();
 
     if (index == -1) {
         return;
     }
+
+    Account acc = readAccount(index);
 
     int transfer;
 
@@ -153,16 +155,17 @@ void transferToSavingsAccount()
         printf("Type in an amount of money:\n");
         
         if (scanf("%d", &transfer) == 0 || transfer < 0 ||
-            transfer > accPtr[index].regularBalance) {
+            transfer > acc.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        accPtr[index].regularBalance -= transfer;
-        accPtr[index].savingsBalance += transfer;
+        acc.regularBalance -= transfer;
+        acc.savingsBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
-        printAccount(index);
+        overwriteAccount(acc, index);
+        printAccount(acc);
         return;
     }
 }
@@ -171,17 +174,20 @@ void makeMoneyTransfer()
 {
     printf("\nMaking a money transfer:\n");
 
-    int index1 = searchAccount();
+    int index1 = searchByNumber();
 
     if (index1 == -1) {
         return;
     }
 
-    int index2 = searchAccount();
+    int index2 = searchByNumber();
 
     if (index2 == -1) {
         return;
     }
+
+    Account acc1 = readAccount(index1);
+    Account acc2 = readAccount(index2);
 
     int transfer;
 
@@ -190,17 +196,19 @@ void makeMoneyTransfer()
         printf("to transfer from the first account to the second:\n");
 
         if (scanf("%d", &transfer) == 0 || transfer < 0 || 
-            transfer > accPtr[index1].regularBalance) {
+            transfer > acc1.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        accPtr[index1].regularBalance -= transfer;
-        accPtr[index2].regularBalance += transfer;
+        acc1.regularBalance -= transfer;
+        acc2.regularBalance += transfer;
         printf("\nTransferred %d.\n", transfer);
-        printAccount(index1);
-        printAccount(index2);
+        overwriteAccount(acc1, index1);
+        overwriteAccount(acc2, index2);
+        printAccount(acc1);
+        printAccount(acc2);
         return;
     }
 }
@@ -209,11 +217,13 @@ void makeWithdrawal()
 {
     printf("\nMaking a withdrawal:\n");
     
-    int index = searchAccount();
+    int index = searchByNumber();
 
     if (index == -1) {
         return;
     }
+
+    Account acc = readAccount(index);
 
     int withdrawal;
 
@@ -221,15 +231,16 @@ void makeWithdrawal()
         printf("Type in an amount of money:\n");
         
         if (scanf("%d", &withdrawal) == 0 || withdrawal < 0 || 
-            withdrawal > accPtr[index].regularBalance) {
+            withdrawal > acc.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        accPtr[index].regularBalance -= withdrawal;
+        acc.regularBalance -= withdrawal;
         printf("\nWithdrawn %d.\n", withdrawal);
-        printAccount(index);
+        overwriteAccount(acc, index);
+        printAccount(acc);
         return;
     }
 }
@@ -238,11 +249,13 @@ void makeDeposit()
 {
     printf("\nMaking a deposit:\n");
     
-    int index = searchAccount();
+    int index = searchByNumber();
 
     if (index == -1) {
         return;
     }
+
+    Account acc = readAccount(index);
 
     int deposit;
 
@@ -255,9 +268,10 @@ void makeDeposit()
             continue;
         }
 
-        accPtr[index].regularBalance += deposit;
+        acc.regularBalance += deposit;
         printf("\nDeposited %d.\n", deposit);
-        printAccount(index);
+        overwriteAccount(acc, index);
+        printAccount(acc);
         return;
     }
 }
@@ -334,14 +348,35 @@ int checkID(char* line)
     return 1;
 }
 
-int searchAccount() 
+int cmpName(char* line, Account acc)
 {
-    if (isDataEmpty()) {
-        printf("\nNo accounts search.\n\n");
-        return -1;
+    return (strcmp(line, acc.name));
+}
+
+int cmpSurname(char* line, Account acc)
+{
+    return (strcmp(line, acc.surname));
+}
+
+int cmpAddress(char* line, Account acc)
+{
+    return (strcmp(line, acc.address));
+}
+
+int cmpID(char* line, Account acc)
+{
+    return (strcmp(line, acc.id));
+}
+
+void searchAccount() 
+{
+    long size = whatSize();
+
+    if (size == 0) {
+        printf("\nNo accounts to search.\n\n");
+        return;
     }
 
-    int index;
     int choice;
 
     do {
@@ -361,25 +396,29 @@ int searchAccount()
 
         while (getchar()!='\n');
 
+        int index;
+
         switch (choice) {
             case 1:
                 index = searchByNumber();
+                Account acc = readAccount(index);
+                printAccount(acc);
                 break;
 
             case 2:
-                index = searchByName();
+                searchByName(size);
                 break;
 
             case 3:
-                index = searchBySurname();
+                searchBySurname(size);
                 break;
             
             case 4:
-                index = searchByAddress();
+                searchByAddress(size);
                 break;
             
             case 5:
-                index = searchByID();
+                searchByID(size);
                 break;
             
             default:
@@ -387,98 +426,118 @@ int searchAccount()
                 break;
         }
     } while (choice > 5 || choice < 1);
+}
 
-    if (index == -1) {
+void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, Account))
+{
+    char line[MAX_LINE];
+    int found = 0;
+    enterLine(line, msg, check);
+
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        if (!(*cmp)(line, acc)) {
+            printAccount(acc);
+            found = 1;
+        }
+    }
+
+    if (!found) {
         printf("\nAccount not found.\n\n");
     }
-    else {
-        printAccount(index);
-    }
-
-    return index;
 }
 
-int searchByID()
+void searchByID(long size)
 {
     char line[MAX_LINE];
+    int found = 0;
+    enterLine(line, "ID", &checkID);
 
-    do {
-        printf("\nType in an ID:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkID(line) == 0);
-
-    for (int i = 0; i < accSize; ++i) {
-        if (strcmp(line, accPtr[i].id) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
-            return i;
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        if (!strcmp(line, acc.id)) {
+            printAccount(acc);
+            found = 1;
         }
     }
 
-    return -1;
+    if (!found) {
+        printf("\nAccount not found.\n\n");
+    }
 }
 
-int searchByAddress()
+void searchByAddress(long size)
 {
     char line[MAX_LINE];
+    int found = 0;
+    enterLine(line, "address", &checkAddress);
 
-    do {
-        printf("\nType in an address:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkAddress(line) == 0);
-
-    for (int i = 0; i < accSize; ++i) {
-        if (strcmp(line, accPtr[i].address) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
-            return i;
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        if (!strcmp(line, acc.address)) {
+            printAccount(acc);
+            found = 1;
         }
     }
 
-    return -1;
+    if (!found) {
+        printf("\nAccount not found.\n\n");
+    }
 }
 
-int searchBySurname()
+void searchBySurname(long size)
 {
     char line[MAX_LINE];
+    int found = 0;
+    enterLine(line, "surname", &checkName);
 
-    do {
-        printf("\nType in a surname:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkName(line) == 0);
-
-    for (int i = 0; i < accSize; ++i) {
-        if (strcmp(line, accPtr[i].surname) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
-            return i;
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        if (!strcmp(line, acc.surname)) {
+            printAccount(acc);
+            found = 1;
         }
     }
 
-    return -1;
+    if (!found) {
+        printf("\nAccount not found.\n\n");
+    }
 }
 
-int searchByName()
+void searchByName(long size)
 {
     char line[MAX_LINE];
+    int found = 0;
+    enterLine(line, "name", &checkName);
 
-    do {
-        printf("\nType in a name:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkName(line) == 0);
-
-    for (int i = 0; i < accSize; ++i) {
-        if (strcmp(line, accPtr[i].name) == 0) { // RETURNS 0 IF STRINGS ARE THE SAME!!!
-            return i;
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        if (!strcmp(line, acc.name)) {
+            printAccount(acc);
+            found = 1;
         }
     }
 
-    return -1;
+    if (!found) {
+        printf("\nAccount not found.\n\n");
+    }
 }
 
 int searchByNumber()
 {
+    long size = whatSize();
+
+    if (size == 0) {
+        return -1;
+    }
+
     int number;
 
     while (1) {
-        printf("\nThere are %d records in the database.", accSize);
-        printf("\nType in a number from 1 to %d:\n", accSize);
+        printf("\nThere are %ld records in the database.", size);
+        printf("\nType in a number from 1 to %ld:\n", size);
 
-        if (scanf("%d", &number) == 0 || number > accSize || number <= 0) {
+        if (scanf("%d", &number) == 0 || number > size || number <= 0) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
@@ -488,64 +547,58 @@ int searchByNumber()
     }
 }
 
-void printAccount(int index) 
+void printAccount(Account acc) 
 {
-    printf("\nNumber:\t\t\t%d\n", accPtr[index].number);
-    printf("Name:\t\t\t%s\n", accPtr[index].name);
-    printf("Surname:\t\t%s\n", accPtr[index].surname);
-    printf("Address:\t\t%s\n", accPtr[index].address);
-    printf("ID:\t\t\t%s\n", accPtr[index].id);
-    printf("Regular balance:\t%d\n", accPtr[index].regularBalance);
-    printf("Savings balance:\t%d\n\n", accPtr[index].savingsBalance);
+    printf("\nNumber:\t\t\t%d\n", acc.number);
+    printf("Name:\t\t\t%s\n", acc.name);
+    printf("Surname:\t\t%s\n", acc.surname);
+    printf("Address:\t\t%s\n", acc.address);
+    printf("ID:\t\t\t%s\n", acc.id);
+    printf("Regular balance:\t%d\n", acc.regularBalance);
+    printf("Savings balance:\t%d\n\n", acc.savingsBalance);
 }
 
 void listAccounts() 
 {
-    if (isDataEmpty()) {
+    long size = whatSize();
+
+    if (size == 0) {
         printf("\nNo accounts to list.\n\n");
         return;
     }
 
     printf("\nListing all accounts:\n");
     
-    for (int i = 0; i < accSize; ++i) {
-        printAccount(i);
+    for (int i = 0; i < size; ++i) {
+        Account acc = readAccount(i);
+        printAccount(acc);
     }
+}
+
+void enterLine(char* line, char* msg, int (*check)(char*))
+{
+    do {
+        printf("Type in the %s:\n", msg);
+        fgets(line, MAX_LINE, stdin);
+    } while (!(*check)(line));
 }
 
 void makeAccount() 
 {
     Account acc;
     char line[MAX_LINE];
-
+	long size = whatSize();
+	
     printf("\nCreating new account:\n\n");
-
-    do {
-        printf("Type in your name:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkName(line) == 0);
-
+	acc.number = size + 1;
+	
+    enterLine(line, "name", &checkName);
     strcpy(acc.name, line);
-
-    do {
-        printf("Type in your surname:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkName(line) == 0);
-
+    enterLine(line, "surname", &checkName);
     strcpy(acc.surname, line);
-
-    do {
-        printf("Type in your address:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkAddress(line) == 0);
-
+    enterLine(line, "address", &checkAddress);
     strcpy(acc.address, line);
-
-    do {
-        printf("Type in your id number:\n");
-        fgets(line, MAX_LINE, stdin);
-    } while (checkID(line) == 0);
-
+    enterLine(line, "ID", &checkID);
     strcpy(acc.id, line);
 
     printf("Type in your regular account balance:\n");
@@ -556,142 +609,49 @@ void makeAccount()
     fgets(line, MAX_LINE, stdin);
     acc.savingsBalance = atoi(line);
 
-    if (++accSize == 1) {
-        accPtr = malloc(sizeof(Account));
-        *accPtr = acc;
-    }
-    else {
-        accPtr = realloc(accPtr, accSize * sizeof(Account));
-        accPtr[accSize - 1] = acc;
-    }
+    appendAccount(acc);
 
     printf("\n");
 }
 
-void updateData()
+void overwriteAccount(Account acc, int index)
 {
-    FILE* data;
-    data = fopen("data.txt", "w");
-    char line[MAX_LINE];
+	FILE* data = fopen("data.bin", "rb+");
+	fseek(data, index * sizeof(Account), SEEK_SET);
+	fwrite(&acc, sizeof(Account), 1, data);
+	fclose(data);
+}
 
-    for (int i = 0; i < accSize; ++i) {
-        fprintf(data, "%s\n", accPtr[i].name);
-        fprintf(data, "%s\n", accPtr[i].surname);
-        fprintf(data, "%s\n", accPtr[i].address);
-        fprintf(data, "%s\n", accPtr[i].id);
-        sprintf(line, "%d", accPtr[i].regularBalance);
-        fprintf(data, "%s\n", line);
-        sprintf(line, "%d", accPtr[i].savingsBalance);
-        fprintf(data, "%s\n\n", line);
-    }
-
+void appendAccount(Account acc)
+{
+    FILE* data = fopen("data.bin", "ab");
+    fwrite(&acc, sizeof(Account), 1, data);
     fclose(data);
 }
 
-void readData()
+Account readAccount(int index)
 {
-    FILE* data;
-    data = fopen("data.txt", "r");
-
+    FILE* data = fopen("data.bin", "rb");
     Account acc;
-    char line[MAX_LINE];
-    char* s;
-
-    while (1) {
-        acc.number = accSize + 1;
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL || checkName(line) == 0) {
-            break;
-        }
-
-        strcpy(acc.name, line);
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL || checkName(line) == 0) {
-            break;
-        }
-
-        strcpy(acc.surname, line);
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL || checkAddress(line) == 0) {
-            break;
-        }
-
-        strcpy(acc.address, line);
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL || checkID(line) == 0) {
-            break;
-        }
-
-        strcpy(acc.id, line);
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL) {
-            break;
-        }
-
-        acc.regularBalance = atoi(line);
-
-        do {
-            s = fgets(line, MAX_LINE, data);
-        } while ((line[0] == '\n' || line[0] == '\r') && s != NULL);
-
-        if (s == NULL) {
-            break;
-        }
-
-        acc.savingsBalance = atoi(line);
-
-        if (++accSize == 1) {
-            accPtr = malloc(sizeof(Account));
-            *accPtr = acc;
-        }
-        else {
-            accPtr = realloc(accPtr, accSize * sizeof(Account));
-            accPtr[accSize - 1] = acc;
-        }
-    }
-
+    fseek(data, index * sizeof(Account), SEEK_SET);
+    fread(&acc, sizeof(Account), 1, data);
     fclose(data);
+    return acc;
 }
 
-int isDataEmpty() 
+long whatSize() 
 {
-    FILE* data;
-    data = fopen("data.txt", "r");
+    FILE* data = fopen("data.bin", "rb");
 
     if (data == NULL) {
-        data = fopen("data.txt", "w");
+        data = fopen("data.bin", "wb");
     }
 
-    fseek(data, 0L, SEEK_END);
+    fseek(data, 0, SEEK_END);
+    long size = ftell(data) / sizeof(Account);
 
-    if (ftell(data) == 0) {
-        fclose(data);
-        return 1;
-    }
-    else {
-        fclose(data);
-        return 0;
-    }
+    fclose(data);
+    return size;
 }
 
 void printWelcome()
