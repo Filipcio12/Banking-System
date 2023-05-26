@@ -17,7 +17,7 @@ typedef struct {
 
 void printWelcome();
 long whatSize();
-Account readAccount(int index);
+int readAccount(Account* acc, int index);
 void appendAccount(Account acc);
 void overwriteAccount(Account acc, int index);
 void makeAccount();
@@ -39,6 +39,9 @@ int cmpSurname(char* line, Account acc);
 int cmpAddress(char* line, Account acc);
 int cmpID(char* line, Account acc);
 void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, Account));
+int verifyAccount(Account acc, int index);
+void makeBackup();
+void confirmOperation();
 
 int main() 
 {
@@ -100,6 +103,57 @@ int main()
     return 0;
 }
 
+void confirmOperation()
+{   
+    char line[MAX_LINE];
+    do {
+        printf("Do you wish to confirm the operation? (y/n):\n");
+        fgets(line, MAX_LINE, stdin);
+    } while (strcmp("y\n", line) && strcmp("n\n", line));
+    
+    if (!strcmp("n\n", line)) {
+        if (remove("data.bin") != 0) {
+            printf("Error deleting file.\n");
+            return;
+        }
+        if (rename("backup.bin", "data.bin") != 0) {
+            printf("Error renaming file.\n");
+            return;
+        }
+        makeBackup();
+    }
+}
+
+void makeBackup()
+{
+    FILE* data = fopen("data.bin", "rb");
+    FILE* backup = fopen("backup.bin", "wb");
+    if (data == NULL || backup == NULL) {
+        printf("File open error.\n");
+        return;
+    }
+    Account acc;
+    while (fread(&acc, sizeof(Account), 1, data)) {
+        fwrite(&acc, sizeof(Account), 1, backup);
+    }
+
+    fclose(data);
+    fclose(backup);
+}
+
+int verifyAccount(Account acc, int index)
+{
+    if (
+        checkName(acc.name) && checkName(acc.surname) && 
+        checkAddress(acc.address) && checkID(acc.id) &&
+        (index + 1) == acc.number
+    ) {
+        return 1;
+    }
+
+    return 0;
+}
+
 void transferFromSavingsAccount()
 {
     printf("\nMaking a transfer from a savings account:\n");
@@ -110,25 +164,38 @@ void transferFromSavingsAccount()
         return;
     }
 
-    Account acc = readAccount(index);
+    Account acc;
+    if (!readAccount(&acc, index)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc);
 
-    int transfer;
+    double transfer;
 
     while (1) {
         printf("Type in an amount of money:\n");
         
-        if (scanf("%d", &transfer) == 0 || transfer < 0 ||
+        if (scanf("%lf", &transfer) == 0 || transfer < 0 ||
             transfer > acc.savingsBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        acc.savingsBalance -= transfer;
-        acc.regularBalance += transfer;
-        printf("\nTransferred %d.\n", transfer);
+        acc.savingsBalance -= (int)(transfer * 100);
+        acc.regularBalance += (int)(transfer * 100);
+        printf("\nTransferred %.2f.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
+        confirmOperation();
+
+        if (!readAccount(&acc, index)) {
+            printf("Error reading the file.\n");
+            return;
+        }
+
         printAccount(acc);
         return;
     }
@@ -144,25 +211,37 @@ void transferToSavingsAccount()
         return;
     }
 
-    Account acc = readAccount(index);
+    Account acc;
+    if (!readAccount(&acc, index)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc);
 
-    int transfer;
+    double transfer;
 
     while (1) {
         printf("Type in an amount of money:\n");
         
-        if (scanf("%d", &transfer) == 0 || transfer < 0 ||
+        if (scanf("%lf", &transfer) == 0 || transfer < 0 ||
             transfer > acc.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        acc.regularBalance -= transfer;
-        acc.savingsBalance += transfer;
-        printf("\nTransferred %d.\n", transfer);
+        acc.regularBalance -= (int)(transfer * 100);
+        acc.savingsBalance += (int)(transfer * 100);
+        printf("\nTransferred %.2f.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
+        confirmOperation();
+
+        if (!readAccount(&acc, index)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         printAccount(acc);
         return;
     }
@@ -178,7 +257,11 @@ void makeMoneyTransfer()
         return;
     }
 
-    Account acc1 = readAccount(index1);
+    Account acc1;
+    if (!readAccount(&acc1, index1)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc1);
 
     int index2 = searchByNumber();
@@ -187,27 +270,43 @@ void makeMoneyTransfer()
         return;
     }
 
-    Account acc2 = readAccount(index2);
+    Account acc2;
+    if (!readAccount(&acc2, index2)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc2);
 
-    int transfer;
+    double transfer;
 
     while (1) {
         printf("Type in an amount of money ");
         printf("to transfer from the first account to the second:\n");
 
-        if (scanf("%d", &transfer) == 0 || transfer < 0 || 
+        if (scanf("%lf", &transfer) == 0 || transfer < 0 || 
             transfer > acc1.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        acc1.regularBalance -= transfer;
-        acc2.regularBalance += transfer;
-        printf("\nTransferred %d.\n", transfer);
+        acc1.regularBalance -= (int)(transfer * 100);
+        acc2.regularBalance += (int)(transfer * 100);
+        printf("\nTransferred %.2f.\n", transfer);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc1, index1);
         overwriteAccount(acc2, index2);
+        confirmOperation();
+
+        if (!readAccount(&acc1, index1)) {
+            printf("Error reading the file.\n");
+            return;
+        }
+        if (!readAccount(&acc2, index2)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         printAccount(acc1);
         printAccount(acc2);
         return;
@@ -224,24 +323,35 @@ void makeWithdrawal()
         return;
     }
 
-    Account acc = readAccount(index);
+    Account acc;
+    if (!readAccount(&acc, index)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc);
 
-    int withdrawal;
+    double withdrawal;
 
     while (1) {
         printf("Type in an amount of money:\n");
         
-        if (scanf("%d", &withdrawal) == 0 || withdrawal < 0 || 
+        if (scanf("%lf", &withdrawal) == 0 || withdrawal < 0 || 
             withdrawal > acc.regularBalance) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        acc.regularBalance -= withdrawal;
-        printf("\nWithdrawn %d.\n", withdrawal);
+        acc.regularBalance -= (int)(withdrawal * 100);
+        printf("\nWithdrawn %.2f.\n", withdrawal);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
+        confirmOperation();
+        if (!readAccount(&acc, index)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         printAccount(acc);
         return;
     }
@@ -257,23 +367,35 @@ void makeDeposit()
         return;
     }
 
-    Account acc = readAccount(index);
+    Account acc;
+    if (!readAccount(&acc, index)) {
+        printf("Error reading the file.\n");
+        return;
+    }
     printAccount(acc);
 
-    int deposit;
+    double deposit;
 
     while (1) {
         printf("Type in an amount of money:\n");
         
-        if (scanf("%d", &deposit) == 0 || deposit < 0) {
+        if (scanf("%lf", &deposit) == 0 || deposit < 0) {
             printf("\nIncorrect input.\n");
             while (getchar()!='\n');
             continue;
         }
 
-        acc.regularBalance += deposit;
-        printf("\nDeposited %d.\n", deposit);
+        acc.regularBalance += (int)(deposit * 100);
+        printf("\nDeposited %.2f.\n", deposit);
+        while (getchar()!='\n');
+        makeBackup();
         overwriteAccount(acc, index);
+        confirmOperation();
+
+        if (!readAccount(&acc, index)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         printAccount(acc);
         return;
     }
@@ -281,6 +403,9 @@ void makeDeposit()
 
 int checkName(char* line)
 {
+    if (line == NULL) {
+        return 0;
+    }
     if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
         line[strlen(line) - 1] = '\0';
         line[strlen(line) - 2] = '\0';
@@ -305,6 +430,9 @@ int checkName(char* line)
 
 int checkAddress(char* line)
 {
+    if (line == NULL) {
+        return 0;
+    }
     if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
         line[strlen(line) - 1] = '\0';
         line[strlen(line) - 2] = '\0';
@@ -329,6 +457,9 @@ int checkAddress(char* line)
 
 int checkID(char* line)
 {
+    if (line == NULL) {
+        return 0;
+    }
     if (strlen(line) > 1 && line[strlen(line) - 1] == '\n' && line[strlen(line) - 2] == '\r') {
         line[strlen(line) - 1] = '\0';
         line[strlen(line) - 2] = '\0';
@@ -404,7 +535,11 @@ void searchAccount()
         switch (choice) {
             case 1:
                 index = searchByNumber();
-                Account acc = readAccount(index);
+                Account acc;
+                if (!readAccount(&acc, index)) {
+                    printf("Error reading the file.\n");
+                    return;
+                }
                 printAccount(acc);
                 break;
 
@@ -438,7 +573,11 @@ void searchByField(long size, char* msg, int (*check)(char*), int (*cmp)(char*, 
     enterLine(line, msg, check);
 
     for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
+        Account acc;
+        if (!readAccount(&acc, i)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         if (!(*cmp)(line, acc)) {
             printAccount(acc);
             found = 1;
@@ -481,8 +620,8 @@ void printAccount(Account acc)
     printf("Surname:\t\t%s\n", acc.surname);
     printf("Address:\t\t%s\n", acc.address);
     printf("ID:\t\t\t%s\n", acc.id);
-    printf("Regular balance:\t%d\n", acc.regularBalance);
-    printf("Savings balance:\t%d\n\n", acc.savingsBalance);
+    printf("Regular balance:\t%.2f\n", ((float)acc.regularBalance) / 100);
+    printf("Savings balance:\t%.2f\n\n", ((float)acc.savingsBalance)/ 100);
 }
 
 void listAccounts() 
@@ -497,7 +636,11 @@ void listAccounts()
     printf("\nListing all accounts:\n");
     
     for (int i = 0; i < size; ++i) {
-        Account acc = readAccount(i);
+        Account acc;
+        if (!readAccount(&acc, i)) {
+            printf("Error reading the file.\n");
+            return;
+        }
         printAccount(acc);
     }
 }
@@ -528,15 +671,35 @@ void makeAccount()
     enterLine(line, "ID", &checkID);
     strcpy(acc.id, line);
 
-    printf("Type in your regular account balance:\n");
-    fgets(line, MAX_LINE, stdin);
-    acc.regularBalance = atoi(line);
+    double number;
 
-    printf("Type in your savings account balance:\n");
-    fgets(line, MAX_LINE, stdin);
-    acc.savingsBalance = atoi(line);
+    while (1) {
+        printf("Type in the regular account balance:\n");
+        if (scanf("%lf", &number) == 0 || number < 0) {
+            while (getchar() != '\n');
+            continue;
+        }
+        break;
+    }
 
+    acc.regularBalance = (int)(number * 100);
+
+    while (1) {
+        printf("Type in the savings account balance:\n");
+        if (scanf("%lf", &number) == 0 || number < 0) {
+            while (getchar() != '\n');
+            continue;
+        }
+        break;
+    }
+
+    while (getchar() != '\n');
+
+    acc.savingsBalance = (int)(number * 100);
+
+    makeBackup();
     appendAccount(acc);
+    confirmOperation();
 
     printf("\n");
 }
@@ -544,6 +707,10 @@ void makeAccount()
 void overwriteAccount(Account acc, int index)
 {
 	FILE* data = fopen("data.bin", "rb+");
+    if (data == NULL) {
+        printf("File open error.\n");
+        return;
+    }
 	fseek(data, index * sizeof(Account), SEEK_SET);
 	fwrite(&acc, sizeof(Account), 1, data);
 	fclose(data);
@@ -552,18 +719,24 @@ void overwriteAccount(Account acc, int index)
 void appendAccount(Account acc)
 {
     FILE* data = fopen("data.bin", "ab");
+    if (data == NULL) {
+        printf("File open error.\n");
+        return;
+    }
     fwrite(&acc, sizeof(Account), 1, data);
     fclose(data);
 }
 
-Account readAccount(int index)
+int readAccount(Account* acc, int index)
 {
     FILE* data = fopen("data.bin", "rb");
-    Account acc;
+    if (data == NULL) {
+        return 0;
+    }
     fseek(data, index * sizeof(Account), SEEK_SET);
-    fread(&acc, sizeof(Account), 1, data);
+    fread(acc, sizeof(Account), 1, data);
     fclose(data);
-    return acc;
+    return verifyAccount(*acc, index) ? 1 : 0;
 }
 
 long whatSize() 
