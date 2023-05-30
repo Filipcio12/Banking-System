@@ -669,8 +669,8 @@ void printAccount(Account acc)
 	printf("Surname:\t\t%s\n", acc.surname);
 	printf("Address:\t\t%s\n", acc.address);
 	printf("ID:\t\t\t%s\n", acc.id);
-	printf("Regular balance:\t%.2f\n", ((float)acc.regularBalance) / 100);
-	printf("Savings balance:\t%.2f\n\n", ((float)acc.savingsBalance) / 100);
+	printf("Regular balance:\t%.2f\n", ((double)acc.regularBalance) / 100);
+	printf("Savings balance:\t%.2f\n\n", ((double)acc.savingsBalance) / 100);
 }
 
 void listAccounts()
