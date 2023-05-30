@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_LINE 50
 
@@ -186,14 +187,14 @@ void transferFromSavingsAccount()
 			continue;
 		}
 
-		if (acc.regularBalance - (int)(transfer * 100) < 0 ||
-			acc.savingsBalance + (int)(transfer * 100) < 0) {
+		if (acc.regularBalance - (int)(floor(transfer * 100)) < 0 ||
+			acc.savingsBalance + (int)(floor(transfer * 100)) < 0) {
 			while (getchar() != '\n')
 				;
 			continue;
 		}
-		acc.savingsBalance -= (int)(transfer * 100);
-		acc.regularBalance += (int)(transfer * 100);
+		acc.savingsBalance -= (int)(floor(transfer * 100));
+		acc.regularBalance += (int)(floor(transfer * 100));
 		printf("\nTransferred %.2f.\n", transfer);
 		while (getchar() != '\n')
 			;
@@ -241,14 +242,14 @@ void transferToSavingsAccount()
 			continue;
 		}
 
-		if (acc.regularBalance - (int)(transfer * 100) < 0 ||
-			acc.savingsBalance + (int)(transfer * 100) < 0) {
+		if (acc.regularBalance - (int)(floor(transfer * 100)) < 0 ||
+			acc.savingsBalance + (int)(floor(transfer * 100)) < 0) {
 			while (getchar() != '\n')
 				;
 			continue;
 		}
-		acc.regularBalance -= (int)(transfer * 100);
-		acc.savingsBalance += (int)(transfer * 100);
+		acc.regularBalance -= (int)(floor(transfer * 100));
+		acc.savingsBalance += (int)(floor(transfer * 100));
 		printf("\nTransferred %.2f.\n", transfer);
 		while (getchar() != '\n')
 			;
@@ -309,14 +310,14 @@ void makeMoneyTransfer()
 			continue;
 		}
 
-		if (acc1.regularBalance - (int)(transfer * 100) < 0 ||
-			acc2.regularBalance + (int)(transfer * 100) < 0) {
+		if (acc1.regularBalance - (int)(floor(transfer * 100)) < 0 ||
+			acc2.regularBalance + (int)(floor(transfer * 100)) < 0) {
 			while (getchar() != '\n')
 				;
 			continue;
 		}
-		acc1.regularBalance -= (int)(transfer * 100);
-		acc2.regularBalance += (int)(transfer * 100);
+		acc1.regularBalance -= (int)(floor(transfer * 100));
+		acc2.regularBalance += (int)(floor(transfer * 100));
 		printf("\nTransferred %.2f.\n", transfer);
 		while (getchar() != '\n')
 			;
@@ -368,12 +369,12 @@ void makeWithdrawal()
 				;
 			continue;
 		}
-		if (acc.regularBalance - (int)(withdrawal * 100) < 0) {
+		if (acc.regularBalance - (int)(floor(withdrawal * 100)) < 0) {
 			while (getchar() != '\n')
 				;
 			continue;
 		}
-		acc.regularBalance -= (int)(withdrawal * 100);
+		acc.regularBalance -= (int)(floor(withdrawal * 100));
 		printf("\nWithdrawn %.2f.\n", withdrawal);
 		while (getchar() != '\n')
 			;
@@ -418,13 +419,13 @@ void makeDeposit()
 			continue;
 		}
 
-		if (acc.regularBalance + (int)(deposit * 100) < 0) {
+		if (acc.regularBalance + (int)(floor(deposit * 100)) < 0) {
 			while (getchar() != '\n')
 				;
 			continue;
 		}
 
-		acc.regularBalance += (int)(deposit * 100);
+		acc.regularBalance += (int)(floor(deposit * 100));
 		printf("\nDeposited %.2f.\n", deposit);
 		while (getchar() != '\n')
 			;
@@ -603,6 +604,7 @@ void searchAccount()
 		case 5:
 			searchByField(size, "ID", &checkID, &cmpID);
 			break;
+
 
 		default:
 			printf("\nIncorrect input.\n\n");
